@@ -12,9 +12,7 @@ class FitSMS {
     this.apiToken = apiToken;
     this.senderId = senderId;
 
-    // FitSMS uses different versions for different features
     this.v3Base = "https://app.fitsms.lk/api/v3";
-    this.v4Base = "https://app.fitsms.lk/api/v4";
 
     // Default Headers
     this.headers = {
@@ -36,7 +34,7 @@ class FitSMS {
 
     try {
       const response = await axios.post(
-        `${this.v3Base}/send/sms`,
+        `${this.v3Base}/sms/send`,
         {
           recipient: recipientList,
           sender_id: this.senderId,
@@ -75,7 +73,7 @@ class FitSMS {
    */
   async getBalance() {
     try {
-      const response = await axios.get(`${this.v4Base}/balance`, {
+      const response = await axios.get(`${this.v3Base}/balance`, {
         headers: this.headers,
       });
       return response.data;
@@ -91,7 +89,7 @@ class FitSMS {
    */
   async getProfile() {
     try {
-      const response = await axios.get(`${this.v4Base}/me`, {
+      const response = await axios.get(`${this.v3Base}/me`, {
         headers: this.headers,
       });
       return response.data;
