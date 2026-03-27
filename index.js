@@ -24,13 +24,48 @@ class FitSMS {
 
   /**
    * Send an SMS (v3 API)
-   * @param {string|string[]} recipients - e.g., "9476111,9476222"
+   * @param {string|string[]} recipients - e.g., "9476XXXXX,9476XXXXX"
    * @param {string} message - The SMS body
    */
   async send(recipients, message, type = "plain") {
-    const recipientList = Array.isArray(recipients)
-      ? recipients.join(",")
-      : recipients;
+    const allowedTypes = ["plain", "unicode"];
+    if (!allowedTypes.includes(type)) {
+      throw new Error(
+        `FitSMS Validation Error: Invalid type '${type}'. Use 'plain' or 'unicode'.`,
+      );
+    }
+
+    // 2. Process and Validate Recipients
+    let rawList = Array.isArray(recipients)
+      ? recipients
+      : recipients.split(",");
+
+    const validatedNumbers = rawList.map((num) => {
+      // Remove all non-numeric characters (spaces, +, dashes)
+      let cleaned = num.replace(/\D/g, "");
+
+      // Convert local 07... format to 947...
+      if (cleaned.startsWith("07") && cleaned.length === 10) {
+        cleaned = "94" + cleaned.substring(1);
+      }
+
+      // Convert 7... format to 947...
+      if (cleaned.startsWith("7") && cleaned.length === 9) {
+        cleaned = "94" + cleaned;
+      }
+
+      // Final Sri Lankan Format Check (947XXXXXXXX)
+      const slRegex = /^(94)(7[01245678])\d{7}$/;
+      if (!slRegex.test(cleaned)) {
+        throw new Error(
+          `FitSMS Validation Error: Invalid Sri Lankan number found: ${num}`,
+        );
+      }
+
+      return cleaned;
+    });
+
+    const recipientList = validatedNumbers.join(",");
 
     try {
       const response = await axios.post(
