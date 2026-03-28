@@ -12,7 +12,7 @@ class FitSMS {
     this.apiToken = apiToken;
     this.senderId = senderId;
 
-    this.v3Base = "https://app.fitsms.lk/api/v3";
+    this.v4Base = "https://app.fitsms.lk/api/v4";
 
     // Default Headers
     this.headers = {
@@ -23,7 +23,7 @@ class FitSMS {
   }
 
   /**
-   * Send an SMS (v3 API)
+   * Send an SMS (v4 API)
    * @param {string|string[]} recipients - e.g., "9476XXXXX,9476XXXXX"
    * @param {string} message - The SMS body
    */
@@ -69,7 +69,7 @@ class FitSMS {
 
     try {
       const response = await axios.post(
-        `${this.v3Base}/sms/send`,
+        `${this.v4Base}/sms/send`,
         {
           recipient: recipientList,
           sender_id: this.senderId,
@@ -87,13 +87,16 @@ class FitSMS {
   }
 
   /**
-   * Check status of an existing SMS (v3 API)
+   * Check status of an existing SMS (v4 API)
    * @param {string} uid - The unique message ID
    */
-  async getStatus(uid) {
+  async getStatus(uid, recipient) {
     try {
-      const response = await axios.get(`${this.v3Base}/sms/${uid}`, {
+      const response = await axios.get(`${this.v4Base}/sms/${uid}`, {
         headers: this.headers,
+        params: {
+          recipient,
+        },
       });
       return response.data;
     } catch (error) {
@@ -108,7 +111,7 @@ class FitSMS {
    */
   async getBalance() {
     try {
-      const response = await axios.get(`${this.v3Base}/balance`, {
+      const response = await axios.get(`${this.v4Base}/balance`, {
         headers: this.headers,
       });
       return response.data;
@@ -124,7 +127,7 @@ class FitSMS {
    */
   async getProfile() {
     try {
-      const response = await axios.get(`${this.v3Base}/me`, {
+      const response = await axios.get(`${this.v4Base}/me`, {
         headers: this.headers,
       });
       return response.data;
